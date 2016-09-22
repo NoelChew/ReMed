@@ -13,10 +13,15 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
 
+import com.flipboard.bottomsheet.BottomSheetLayout;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -53,6 +58,8 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
 
+    private BottomSheetLayout bottomSheetLayout;
+
     private ArrayList<Medicine> medicineArrayList;
 
     private static final int DECODE_QR_REQUEST_CODE = 1201;
@@ -70,6 +77,8 @@ public class MainActivity extends AppCompatActivity {
         progressDialog = new ProgressDialog(context);
         progressDialog.setTitle("Loading");
         progressDialog.setMessage("Please wait...");
+
+        bottomSheetLayout = (BottomSheetLayout) findViewById(R.id.bottomsheet);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -252,5 +261,44 @@ public class MainActivity extends AppCompatActivity {
         } else {
             super.onActivityResult(requestCode, resultCode, data);
         }
+    }
+
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        int action = event.getAction();
+        int keyCode = event.getKeyCode();
+        switch (keyCode) {
+            case KeyEvent.KEYCODE_VOLUME_UP:
+                if (action == KeyEvent.ACTION_DOWN) {
+                    popupExpiryUI();
+                }
+                return true;
+            case KeyEvent.KEYCODE_VOLUME_DOWN:
+                if (action == KeyEvent.ACTION_DOWN) {
+                    popupExpiryUI();
+                }
+                return true;
+            default:
+                return super.dispatchKeyEvent(event);
+        }
+    }
+
+    private void popupExpiryUI() {
+        View view = LayoutInflater.from(context).inflate(R.layout.layout_bottomsheet_enter_chat, bottomSheetLayout, false);
+        bottomSheetLayout.showWithSheetView(view);
+        final TextView tvName, tvDetails;
+        Button btnJoin;
+        tvName = (TextView) view.findViewById(R.id.text_view_chatroom_name);
+        tvDetails = (TextView) view.findViewById(R.id.text_view_chatroom_details);
+        btnJoin = (Button) view.findViewById(R.id.button_join_chat);
+
+        tvName.setText(roomName);
+        tvDetails.setText(getString(R.string.participant_count, 0));
+        btnJoin.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startChatActivity(roomName, roomId);
+            }
+        });
     }
 }

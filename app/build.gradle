@@ -40,6 +40,9 @@ dependencies {
 //    compile 'com.github.PhilJay:MPAndroidChart:v2.2.4'
     compile 'com.squareup.okhttp3:okhttp:3.4.1'
     compile 'joda-time:joda-time:2.9.4'
+
+    // bottomsheet
+    compile 'com.flipboard:bottomsheet-core:1.5.1'
 }
 
 

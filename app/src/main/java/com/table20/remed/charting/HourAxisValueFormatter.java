@@ -6,7 +6,6 @@ import com.github.mikephil.charting.formatter.AxisValueFormatter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Locale;
 
 /**
  * Created by Yasir on 02/06/16.
@@ -20,7 +19,7 @@ public class HourAxisValueFormatter implements AxisValueFormatter
 
     public HourAxisValueFormatter(long referenceTimestamp) {
         this.referenceTimestamp = referenceTimestamp;
-        this.mDataFormat = new SimpleDateFormat("HH:mm", Locale.ENGLISH);
+        this.mDataFormat = new SimpleDateFormat("HH:mm");
         this.mDate = new Date();
     }
 
@@ -53,7 +52,7 @@ public class HourAxisValueFormatter implements AxisValueFormatter
 
     private String getHour(long timestamp){
         try{
-            mDate.setTime(timestamp*1000);
+            mDate.setTime(timestamp);
             return mDataFormat.format(mDate);
         }
         catch(Exception ex){

@@ -3,8 +3,6 @@ package com.table20.remed.customclass;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
-import java.util.TimeZone;
-
 /**
  * Created by noelchew on 22/09/2016.
  */
@@ -23,7 +21,7 @@ public class SensorValue {
     }
 
     public long getTimestampInMilliseconds() {
-        DateTime dateTime = new DateTime(getTimestamp(), DateTimeZone.forTimeZone(TimeZone.getTimeZone("MY")));
+        DateTime dateTime = new DateTime(getTimestamp(), DateTimeZone.UTC);
         return dateTime.getMillis();
     }
 

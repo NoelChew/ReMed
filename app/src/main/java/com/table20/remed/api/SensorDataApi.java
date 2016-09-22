@@ -1,7 +1,6 @@
 package com.table20.remed.api;
 
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.google.gson.Gson;
 import com.table20.remed.customclass.SensorDataSet;
@@ -77,7 +76,7 @@ public class SensorDataApi {
                     listener.onCallFailed(body);
                 } else {
                     if (!TextUtils.isEmpty(body)) {
-                        Log.d(TAG, "Sensor Data: " + body);
+//                        Log.d(TAG, "Sensor Data: " + body);
                         SensorDataSet sensorDataSet = new Gson().fromJson(body, SensorDataSet.class);
                         listener.onCallSuccess(sensorDataSet);
                     } else {

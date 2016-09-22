@@ -169,8 +169,13 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.reset_data) {
-            final ArrayList<Medicine> medicineArrayList1 = MedicineData.getMedicineArrayList();
+        if (id == R.id.dropbox_version) {
+            Intent intent = new Intent(context, DropboxActivity.class);
+            startActivity(intent);
+            finish();
+        } else if (id == R.id.reset_data) {
+            final ArrayList<Medicine> medicineArrayList1 = MedicineData.getMedicineArrayList1();
+            final ArrayList<Medicine> medicineArrayList2 = MedicineData.getMedicineArrayList2();
             final User user = new User(HackathonUserModule.getUserId(), USER_LATITUDE, USER_LONGITUDE, USER_EMAIL, "n/a");
             FirebaseDatabase.getInstance().getReference("user").child(user.getId()).setValue(user, new DatabaseReference.CompletionListener() {
                 @Override
@@ -179,8 +184,17 @@ public class MainActivity extends AppCompatActivity {
 //                        String key = FirebaseDatabase.getInstance().getReference("user").child(user.getId()).child("medicines").push().getKey();
                         FirebaseDatabase.getInstance().getReference("user").child(user.getId()).child("medicines").child(medicine.getId()).setValue(medicine);
                     }
-                    Dropbox dropbox = new Dropbox("d201", USER_LATITUDE, USER_LONGITUDE, true);
-                    FirebaseDatabase.getInstance().getReference("dropbox").child(dropbox.getId()).setValue(dropbox);
+                    final Dropbox dropbox = new Dropbox("d201", USER_LATITUDE, USER_LONGITUDE, true);
+                    FirebaseDatabase.getInstance().getReference("dropbox").child(dropbox.getId()).setValue(dropbox, new DatabaseReference.CompletionListener() {
+                        @Override
+                        public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                            for (Medicine medicine : medicineArrayList2) {
+//                        String key = FirebaseDatabase.getInstance().getReference("user").child(user.getId()).child("medicines").push().getKey();
+                                FirebaseDatabase.getInstance().getReference("dropbox").child(dropbox.getId()).child("medicines").child(medicine.getId()).setValue(medicine);
+                            }
+                        }
+                    });
+
                 }
             });
             return true;
@@ -192,8 +206,8 @@ public class MainActivity extends AppCompatActivity {
             String json = new Gson().toJson(scanAction, ScanAction.class);
             Log.d(TAG, "scanAction json: " + json);
             // {"expiryDate":"JAN 2020","id":"101","imageUrl":"https://dummyimage.com/400x400/212121/fff.jpg\u0026text\u003dMedicine+A","name":"Medicine A"}
-// scanAction json: {"medicine":{"expiryDate":"JAN 2020","id":"101","imageUrl":"https://dummyimage.com/400x400/212121/fff.jpg\u0026text\u003dMedicine+A","name":"Medicine A"},"scanType":0}
-            // scanAction json: {"dropbox":{"activeState":true,"id":"201","latitude":3.154205,"longitude":101.713112},"scanType":1}
+// scanAction json: {"medicine":{"expiryDate":"JAN 2020","id":"m101","imageUrl":"https://dummyimage.com/400x400/212121/fff.jpg\u0026text\u003dMedicine+A","name":"Medicine A"},"scanType":0}
+            // scanAction json: {"dropbox":{"activeState":true,"id":"d201","latitude":3.154205,"longitude":101.713112},"scanType":1}
 
 
         }

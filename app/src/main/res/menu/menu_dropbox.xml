@@ -1,0 +1,11 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.table20.remed.ui.MainActivity">
+    <item
+        android:id="@+id/sensor_data"
+        android:orderInCategory="100"
+        android:title="View Sensor Data"
+        app:showAsAction="never" />
+
+</menu>

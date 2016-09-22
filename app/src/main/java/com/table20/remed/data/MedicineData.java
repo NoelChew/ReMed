@@ -10,9 +10,18 @@ import java.util.ArrayList;
 
 public class MedicineData {
 
-    public static ArrayList<Medicine> getMedicineArrayList() {
+    public static ArrayList<Medicine> getMedicineArrayList1() {
         ArrayList<Medicine> medicineArrayList = new ArrayList<>();
         for (int i = 0; i < 3; i++) {
+            Medicine medicine = new Medicine("m" + String.valueOf(i), "Medicine " + String.valueOf(i + 1), "https://dummyimage.com/400x400/212121/fff.jpg&text=Medicine+" + String.valueOf(i + 1), "DEC 2019");
+            medicineArrayList.add(medicine);
+        }
+        return medicineArrayList;
+    }
+
+    public static ArrayList<Medicine> getMedicineArrayList2() {
+        ArrayList<Medicine> medicineArrayList = new ArrayList<>();
+        for (int i = 4; i < 7; i++) {
             Medicine medicine = new Medicine("m" + String.valueOf(i), "Medicine " + String.valueOf(i + 1), "https://dummyimage.com/400x400/212121/fff.jpg&text=Medicine+" + String.valueOf(i + 1), "DEC 2019");
             medicineArrayList.add(medicine);
         }

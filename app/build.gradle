@@ -36,6 +36,10 @@ dependencies {
     compile 'com.google.firebase:firebase-database:9.4.0'
     compile 'com.google.code.gson:gson:2.7'
 //    compile 'com.github.noelchew:NcUtils:0.1.6'
+    compile 'com.github.PhilJay:MPAndroidChart:v3.0.0-beta1'
+//    compile 'com.github.PhilJay:MPAndroidChart:v2.2.4'
+    compile 'com.squareup.okhttp3:okhttp:3.4.1'
+    compile 'joda-time:joda-time:2.9.4'
 }
 
 

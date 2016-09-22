@@ -10,7 +10,7 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.table20.remed.R;
-import com.table20.remed.customclass.MedicineWithExpiry;
+import com.table20.remed.customclass.Medicine;
 
 import java.util.ArrayList;
 
@@ -20,7 +20,7 @@ import java.util.ArrayList;
 
 public class MedicineAdapter extends RecyclerView.Adapter<MedicineAdapter.ViewHolder> {
     public Context context;
-    private ArrayList<MedicineWithExpiry> medicines;
+    private ArrayList<Medicine> medicines;
 
     // Provide a reference to the views for each data item
     // Complex data items may need more than one view per item, and
@@ -40,7 +40,7 @@ public class MedicineAdapter extends RecyclerView.Adapter<MedicineAdapter.ViewHo
     }
 
     // Provide a suitable constructor (depends on the kind of dataset)
-    public MedicineAdapter(ArrayList<MedicineWithExpiry> medicines, Context context) {
+    public MedicineAdapter(ArrayList<Medicine> medicines, Context context) {
         this.medicines = medicines;
         this.context = context;
     }
@@ -62,8 +62,11 @@ public class MedicineAdapter extends RecyclerView.Adapter<MedicineAdapter.ViewHo
     public void onBindViewHolder(ViewHolder holder, int position) {
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
-        MedicineWithExpiry medicineWithExpiry = medicines.get(position);
+        Medicine medicineWithExpiry = medicines.get(position);
+//        Log.d(TAG, "ImageURL: " + medicineWithExpiry.getImageUrl());
         Glide.with(context).load(medicineWithExpiry.getImageUrl()).into(holder.ivImage);
+//        Glide.with(context).load("http://plusquotes.com/images/quotes-img/flower-25.jpg").into(holder.ivImage);
+//        Glide.with(context).load(R.mipmap.ic_launcher).into(holder.ivImage);
         holder.tvExpiry.setText("Expiry: " + medicineWithExpiry.getExpiryDate());
         holder.tvName.setText(medicineWithExpiry.getName());
 

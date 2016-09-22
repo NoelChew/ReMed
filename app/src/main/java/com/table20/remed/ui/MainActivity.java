@@ -1,24 +1,30 @@
 package com.table20.remed.ui;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
+import com.greysonparrelli.permiso.Permiso;
+import com.noelchew.permisowrapper.PermisoWrapper;
 import com.table20.remed.R;
 import com.table20.remed.adapter.MedicineAdapter;
 import com.table20.remed.data.MedicineData;
 
-import static com.table20.remed.R.id.toolbar;
-
 public class MainActivity extends AppCompatActivity {
+
+    private static final String TAG = "MainActivity";
 
     private Context context;
 
@@ -26,21 +32,37 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
 
+    private static final int DECODE_QR_REQUEST_CODE = 1201;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         context = MainActivity.this;
-        
-        Toolbar toolbar = (Toolbar) findViewById(toolbar);
+        Permiso.getInstance().setActivity(this);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+            public void onClick(final View view) {
+
+                PermisoWrapper.getPermissionTakePicture(context, new PermisoWrapper.PermissionListener() {
+                    @Override
+                    public void onPermissionGranted() {
+                        Intent intent = new Intent(context, DecoderActivity.class);
+                        startActivityForResult(intent, DECODE_QR_REQUEST_CODE);
+                    }
+
+                    @Override
+                    public void onPermissionDenied() {
+                        Snackbar.make(view, "Permission to use CAMERA denied.", Snackbar.LENGTH_LONG)
+                                .setAction("Action", null).show();
+                    }
+                });
+
             }
         });
 
@@ -79,5 +101,31 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Permiso.getInstance().setActivity(this);
+    }
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        Permiso.getInstance().onRequestPermissionResult(requestCode, permissions, grantResults);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == DECODE_QR_REQUEST_CODE) {
+            if (resultCode == RESULT_OK) {
+                String text = data.getStringExtra(DecoderActivity.DATA_KEY);
+                Log.d(TAG, "text: " + text);
+                Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            super.onActivityResult(requestCode, resultCode, data);
+        }
     }
 }

@@ -11,11 +11,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -27,7 +27,9 @@ import com.greysonparrelli.permiso.Permiso;
 import com.noelchew.permisowrapper.PermisoWrapper;
 import com.table20.remed.R;
 import com.table20.remed.adapter.MedicineAdapter;
+import com.table20.remed.customclass.Dropbox;
 import com.table20.remed.customclass.Medicine;
+import com.table20.remed.customclass.ScanAction;
 import com.table20.remed.customclass.User;
 import com.table20.remed.data.MedicineData;
 import com.table20.remed.user.HackathonUserModule;
@@ -174,17 +176,26 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
                     for (Medicine medicine : medicineArrayList1) {
-                        String key = FirebaseDatabase.getInstance().getReference("user").child(user.getId()).child("medicines").push().getKey();
-                        FirebaseDatabase.getInstance().getReference("user").child(user.getId()).child("medicines").child(key).setValue(medicine);
+//                        String key = FirebaseDatabase.getInstance().getReference("user").child(user.getId()).child("medicines").push().getKey();
+                        FirebaseDatabase.getInstance().getReference("user").child(user.getId()).child("medicines").child(medicine.getId()).setValue(medicine);
                     }
+                    Dropbox dropbox = new Dropbox("d201", USER_LATITUDE, USER_LONGITUDE, true);
+                    FirebaseDatabase.getInstance().getReference("dropbox").child(dropbox.getId()).setValue(dropbox);
                 }
             });
             return true;
         } else if (id == R.id.test) {
-            Medicine medicine = new Medicine("101", "Medicine A", "https://dummyimage.com/400x400/212121/fff.jpg&text=Medicine+A", "JAN 2020");
-            String json = new Gson().toJson(medicine, Medicine.class);
-            Log.d(TAG, "medicine json: " + json);
+//            Medicine medicine = new Medicine("101", "Medicine A", "https://dummyimage.com/400x400/212121/fff.jpg&text=Medicine+A", "JAN 2020");
+//            ScanAction scanAction = new ScanAction(medicine);
+            Dropbox dropbox = new Dropbox("d201", USER_LATITUDE, USER_LONGITUDE, true);
+            ScanAction scanAction = new ScanAction(dropbox);
+            String json = new Gson().toJson(scanAction, ScanAction.class);
+            Log.d(TAG, "scanAction json: " + json);
             // {"expiryDate":"JAN 2020","id":"101","imageUrl":"https://dummyimage.com/400x400/212121/fff.jpg\u0026text\u003dMedicine+A","name":"Medicine A"}
+// scanAction json: {"medicine":{"expiryDate":"JAN 2020","id":"101","imageUrl":"https://dummyimage.com/400x400/212121/fff.jpg\u0026text\u003dMedicine+A","name":"Medicine A"},"scanType":0}
+            // scanAction json: {"dropbox":{"activeState":true,"id":"201","latitude":3.154205,"longitude":101.713112},"scanType":1}
+
+
         }
 
         return super.onOptionsItemSelected(item);
@@ -209,7 +220,20 @@ public class MainActivity extends AppCompatActivity {
             if (resultCode == RESULT_OK) {
                 String text = data.getStringExtra(DecoderActivity.DATA_KEY);
                 Log.d(TAG, "text: " + text);
-                Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
+//                Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
+                if (!TextUtils.isEmpty(text)) {
+                    ScanAction scanAction = new Gson().fromJson(text, ScanAction.class);
+                    if (scanAction.isMedicine()) {
+                        // add into user list
+//                        String key = FirebaseDatabase.getInstance().getReference("user").child(userId).child("medicines").push().getKey();
+                        FirebaseDatabase.getInstance().getReference("user").child(userId).child("medicines").child(scanAction.getMedicine().getId()).setValue(scanAction.getMedicine());
+                    } else {
+                        // add into Dropbox
+                        FirebaseDatabase.getInstance().getReference("dropbox").child(scanAction.getDropbox().getId()).child("medicines").child(scanAction.getMedicine().getId()).setValue(scanAction.getMedicine());
+                        // remove from user list
+                        FirebaseDatabase.getInstance().getReference("user").child(userId).child("medicines").child(scanAction.getMedicine().getId()).removeValue();
+                    }
+                }
             }
         } else {
             super.onActivityResult(requestCode, resultCode, data);

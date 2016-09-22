@@ -9,13 +9,17 @@ import java.security.NoSuchAlgorithmException;
  * Created by noelchew on 16/09/16.
  */
 public class HackathonUserModule {
+    private static String userId;
     public static String getUserId() {
-        String myDeviceModel = android.os.Build.MODEL;
-        String hash = md5(myDeviceModel);
-        if (TextUtils.isEmpty(hash)) {
-            hash = "abc";
+        if (TextUtils.isEmpty(userId)) {
+            String myDeviceModel = android.os.Build.MODEL;
+            String hash = md5(myDeviceModel);
+            if (TextUtils.isEmpty(hash)) {
+                hash = "abc";
+            }
+            userId = "uid_" + hash;
         }
-        return "uid_" + hash;
+        return userId;
     }
 
     public static String md5(String s) {
@@ -27,7 +31,7 @@ public class HackathonUserModule {
 
             // Create Hex String
             StringBuffer hexString = new StringBuffer();
-            for (int i=0; i<messageDigest.length; i++)
+            for (int i = 0; i < messageDigest.length; i++)
                 hexString.append(Integer.toHexString(0xFF & messageDigest[i]));
             return hexString.toString();
 

@@ -22,6 +22,14 @@ public class User {
 
     }
 
+    public User(String id, double latitude, double longitude, String email, String fcmToken) {
+        this.id = id;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.email = email;
+        this.fcmToken = fcmToken;
+    }
+
     public User(String id, double latitude, double longitude, String email, String fcmToken, HashMap<String, Medicine> medicines) {
         this.id = id;
         this.latitude = latitude;

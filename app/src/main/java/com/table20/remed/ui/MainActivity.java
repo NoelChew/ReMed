@@ -1,5 +1,6 @@
 package com.table20.remed.ui;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -16,21 +17,41 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.google.gson.Gson;
 import com.greysonparrelli.permiso.Permiso;
 import com.noelchew.permisowrapper.PermisoWrapper;
 import com.table20.remed.R;
 import com.table20.remed.adapter.MedicineAdapter;
+import com.table20.remed.customclass.Medicine;
+import com.table20.remed.customclass.User;
 import com.table20.remed.data.MedicineData;
+import com.table20.remed.user.HackathonUserModule;
+
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
 
+    private static final String USER_EMAIL = "abc@gmail.com";
+    private static final double USER_LATITUDE = 3.154205;
+    private static final double USER_LONGITUDE = 101.713112;
+
     private Context context;
+    String userId;
+
+    ProgressDialog progressDialog;
 
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
+
+    private ArrayList<Medicine> medicineArrayList;
 
     private static final int DECODE_QR_REQUEST_CODE = 1201;
 
@@ -43,6 +64,10 @@ public class MainActivity extends AppCompatActivity {
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        progressDialog = new ProgressDialog(context);
+        progressDialog.setTitle("Loading");
+        progressDialog.setMessage("Please wait...");
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -66,6 +91,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        medicineArrayList = new ArrayList<>();
+
         mRecyclerView = (RecyclerView) findViewById(R.id.my_recycler_view);
 
         // use this setting to improve performance if you know that changes
@@ -77,8 +104,52 @@ public class MainActivity extends AppCompatActivity {
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         // specify an adapter (see also next example)
-        mAdapter = new MedicineAdapter(MedicineData.getMedicineArrayList(), context);
+        mAdapter = new MedicineAdapter(medicineArrayList, context);
         mRecyclerView.setAdapter(mAdapter);
+
+        getData();
+    }
+
+    private void getData() {
+        userId = HackathonUserModule.getUserId();
+        getUserDataFromFirebase();
+
+    }
+
+    private void getUserDataFromFirebase() {
+        showProgressDialog();
+        FirebaseDatabase.getInstance().getReference("user").child(userId).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Log.d(TAG, "User ID: " + userId + "\ndata: " + dataSnapshot.toString());
+                User user = dataSnapshot.getValue(User.class);
+                if (user == null || user.getMedicines() == null || user.getMedicineCount() == 0) {
+                    medicineArrayList = new ArrayList<Medicine>();
+                } else {
+                    medicineArrayList = user.getMedicineArrayList();
+                }
+                mAdapter = new MedicineAdapter(medicineArrayList, context);
+                mRecyclerView.setAdapter(mAdapter);
+                hideProgressDialog();
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.e(TAG, databaseError.getMessage());
+            }
+        });
+    }
+
+    private void showProgressDialog() {
+        if (progressDialog != null && !progressDialog.isShowing()) {
+            progressDialog.show();
+        }
+    }
+
+    private void hideProgressDialog() {
+        if (progressDialog != null && progressDialog.isShowing()) {
+            progressDialog.dismiss();
+        }
     }
 
     @Override
@@ -96,8 +167,24 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.reset_data) {
+            final ArrayList<Medicine> medicineArrayList1 = MedicineData.getMedicineArrayList();
+            final User user = new User(HackathonUserModule.getUserId(), USER_LATITUDE, USER_LONGITUDE, USER_EMAIL, "n/a");
+            FirebaseDatabase.getInstance().getReference("user").child(user.getId()).setValue(user, new DatabaseReference.CompletionListener() {
+                @Override
+                public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                    for (Medicine medicine : medicineArrayList1) {
+                        String key = FirebaseDatabase.getInstance().getReference("user").child(user.getId()).child("medicines").push().getKey();
+                        FirebaseDatabase.getInstance().getReference("user").child(user.getId()).child("medicines").child(key).setValue(medicine);
+                    }
+                }
+            });
             return true;
+        } else if (id == R.id.test) {
+            Medicine medicine = new Medicine("101", "Medicine A", "https://dummyimage.com/400x400/212121/fff.jpg&text=Medicine+A", "JAN 2020");
+            String json = new Gson().toJson(medicine, Medicine.class);
+            Log.d(TAG, "medicine json: " + json);
+            // {"expiryDate":"JAN 2020","id":"101","imageUrl":"https://dummyimage.com/400x400/212121/fff.jpg\u0026text\u003dMedicine+A","name":"Medicine A"}
         }
 
         return super.onOptionsItemSelected(item);

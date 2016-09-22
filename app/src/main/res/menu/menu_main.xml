@@ -3,8 +3,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.table20.remed.ui.MainActivity">
     <item
-        android:id="@+id/action_settings"
+        android:id="@+id/reset_data"
         android:orderInCategory="100"
         android:title="Reset Data"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/test"
+        android:orderInCategory="100"
+        android:title="Test"
         app:showAsAction="never" />
 </menu>

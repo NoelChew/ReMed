@@ -10,6 +10,10 @@ public class MedicineWithoutExpiry {
     private String name;
     private String imageUrl;
 
+    public MedicineWithoutExpiry() {
+
+    }
+
     public MedicineWithoutExpiry(String id, String name, String imageUrl) {
         this.id = id;
         this.name = name;

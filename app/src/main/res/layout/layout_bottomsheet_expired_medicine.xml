@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bottomsheet_background"
+    android:padding="8dp">
+
+    <TextView
+        android:id="@+id/text_view_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="2dp"
+        android:text="Expiry Warning"
+        android:textColor="@android:color/black"
+        android:textSize="26sp" />
+
+    <TextView
+        android:id="@+id/text_view_details"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/text_view_label"
+        android:layout_margin="2dp"
+        android:text=""
+        android:textColor="@android:color/black"
+        android:textSize="18sp" />
+
+    <ImageView
+        android:id="@+id/image_view_map"
+        android:layout_width="300dp"
+        android:layout_height="300dp"
+        android:layout_below="@+id/text_view_details"
+        android:layout_centerHorizontal="true"
+        android:layout_margin="2dp" />
+
+    <Button
+        android:id="@+id/button_join_chat"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/image_view_map"
+        android:layout_marginBottom="4dp"
+        android:layout_marginTop="4dp"
+        android:background="@drawable/bg_selectable_primary"
+        android:paddingBottom="16dp"
+        android:paddingTop="16dp"
+        android:text="Get Direction"
+        android:textColor="@android:color/white"
+        android:textSize="20dp" />
+
+</RelativeLayout>

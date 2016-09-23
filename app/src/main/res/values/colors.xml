@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#3F51B5</color>
-    <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#FF4081</color>
+    <color name="colorPrimary">#009688</color>
+    <color name="colorPrimaryDark">#00796b</color>
+    <color name="colorAccent">#f4511e</color>
+
+    <color name="colorPrimarySelected">#26c6da</color>
+
+    <color name="cancel_button_pressed">#ff8a65</color>
+    <color name="cancel_button">#e64a19</color>
+
+    <color name="background">#e9e3dd</color>
+
 </resources>

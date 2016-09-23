@@ -28,12 +28,13 @@ public class MedicineAdapter extends RecyclerView.Adapter<MedicineAdapter.ViewHo
     public static class ViewHolder extends RecyclerView.ViewHolder {
         // each data item is just a string in this case
         public ImageView ivImage;
-        public TextView tvExpiry;
+        public TextView tvPurchase, tvExpiry;
         public TextView tvName;
 
         public ViewHolder(View v) {
             super(v);
             ivImage = (ImageView) v.findViewById(R.id.image_view);
+            tvPurchase = (TextView) v.findViewById(R.id.text_view_purchase);
             tvExpiry = (TextView) v.findViewById(R.id.text_view_expiry);
             tvName = (TextView) v.findViewById(R.id.text_view_name);
         }
@@ -67,7 +68,8 @@ public class MedicineAdapter extends RecyclerView.Adapter<MedicineAdapter.ViewHo
         Glide.with(context).load(medicineWithExpiry.getImageUrl()).into(holder.ivImage);
 //        Glide.with(context).load("http://plusquotes.com/images/quotes-img/flower-25.jpg").into(holder.ivImage);
 //        Glide.with(context).load(R.mipmap.ic_launcher).into(holder.ivImage);
-        holder.tvExpiry.setText("Expiry: " + medicineWithExpiry.getExpiryDate());
+        holder.tvExpiry.setText("Expiry Date: " + medicineWithExpiry.getExpiryDateInString());
+        holder.tvPurchase.setText("Purchase Date: " + medicineWithExpiry.getPurchaseDateInString());
         holder.tvName.setText(medicineWithExpiry.getName());
 
     }

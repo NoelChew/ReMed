@@ -5,8 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -19,9 +19,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.flipboard.bottomsheet.BottomSheetLayout;
+import com.flipboard.bottomsheet.OnSheetDismissedListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -38,6 +41,8 @@ import com.table20.remed.customclass.ScanAction;
 import com.table20.remed.customclass.User;
 import com.table20.remed.data.MedicineData;
 import com.table20.remed.user.HackathonUserModule;
+import com.table20.remed.util.AnimationUtil;
+import com.table20.remed.util.GoogleMapUtil;
 
 import java.util.ArrayList;
 
@@ -58,6 +63,7 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
 
+    private View fab;
     private BottomSheetLayout bottomSheetLayout;
 
     private ArrayList<Medicine> medicineArrayList;
@@ -80,11 +86,14 @@ public class MainActivity extends AppCompatActivity {
 
         bottomSheetLayout = (BottomSheetLayout) findViewById(R.id.bottomsheet);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View view) {
 
+                if (bottomSheetLayout.isSheetShowing()) {
+                    return;
+                }
                 PermisoWrapper.getPermissionTakePicture(context, new PermisoWrapper.PermissionListener() {
                     @Override
                     public void onPermissionGranted() {
@@ -247,10 +256,15 @@ public class MainActivity extends AppCompatActivity {
                 if (!TextUtils.isEmpty(text)) {
                     ScanAction scanAction = new Gson().fromJson(text, ScanAction.class);
                     if (scanAction.isMedicine()) {
-                        // add into user list
-//                        String key = FirebaseDatabase.getInstance().getReference("user").child(userId).child("medicines").push().getKey();
-                        FirebaseDatabase.getInstance().getReference("user").child(userId).child("medicines").child(scanAction.getMedicine().getId()).setValue(scanAction.getMedicine());
+                        popupAddMedicine(scanAction.getMedicine());
                     } else {
+
+                        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                        builder.setTitle("Thank You")
+                                .setMessage("Thank you for donating " + scanAction.getMedicine().getName() + ".")
+                                .setPositiveButton("OK", null)
+                                .show();
+
                         // add into Dropbox
                         FirebaseDatabase.getInstance().getReference("dropbox").child(scanAction.getDropbox().getId()).child("medicines").child(scanAction.getMedicine().getId()).setValue(scanAction.getMedicine());
                         // remove from user list
@@ -283,22 +297,84 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void popupExpiryUI() {
-        View view = LayoutInflater.from(context).inflate(R.layout.layout_bottomsheet_enter_chat, bottomSheetLayout, false);
+    private void popupAddMedicine(final Medicine medicine) {
+        View view = LayoutInflater.from(context).inflate(R.layout.layout_bottomsheet_add_medicine, bottomSheetLayout, false);
         bottomSheetLayout.showWithSheetView(view);
-        final TextView tvName, tvDetails;
-        Button btnJoin;
-        tvName = (TextView) view.findViewById(R.id.text_view_chatroom_name);
-        tvDetails = (TextView) view.findViewById(R.id.text_view_chatroom_details);
-        btnJoin = (Button) view.findViewById(R.id.button_join_chat);
+        TextView tvName, tvDetails;
+        Button btnAdd, btnCancel;
+        ImageView imageView;
+        tvName = (TextView) view.findViewById(R.id.text_view_name);
+        tvDetails = (TextView) view.findViewById(R.id.text_view_expiry);
+        btnAdd = (Button) view.findViewById(R.id.button_add);
+        btnCancel = (Button) view.findViewById(R.id.button_cancel);
+        imageView = (ImageView) view.findViewById(R.id.image_view_medicine);
 
-        tvName.setText(roomName);
-        tvDetails.setText(getString(R.string.participant_count, 0));
-        btnJoin.setOnClickListener(new View.OnClickListener() {
+        Glide.with(MainActivity.this).load(medicine.getImageUrl()).into(imageView);
+        tvName.setText(medicine.getName());
+        tvDetails.setText("Expiry Date: " + medicine.getExpiryDate());
+        btnAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startChatActivity(roomName, roomId);
+                // add into user list
+//                        String key = FirebaseDatabase.getInstance().getReference("user").child(userId).child("medicines").push().getKey();
+                FirebaseDatabase.getInstance().getReference("user").child(userId).child("medicines").child(medicine.getId()).setValue(medicine);
+                bottomSheetLayout.dismissSheet();
             }
         });
+
+        btnCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                bottomSheetLayout.dismissSheet();
+            }
+        });
+        AnimationUtil.animateFadeOut(fab, 100, 300);
+        AnimationUtil.animateScaleXY(imageView, 300, 800);
+        AnimationUtil.animateScaleXY(btnAdd, 600, 800);
+        AnimationUtil.animateScaleXY(btnCancel, 800, 800);
+
+        bottomSheetLayout.addOnSheetDismissedListener(new OnSheetDismissedListener() {
+            @Override
+            public void onDismissed(BottomSheetLayout bottomSheetLayout) {
+                AnimationUtil.animateFadeIn(fab, 100, 300);
+            }
+        });
+
+    }
+
+    private void popupExpiryUI() {
+        View view = LayoutInflater.from(context).inflate(R.layout.layout_bottomsheet_expired_medicine, bottomSheetLayout, false);
+        bottomSheetLayout.showWithSheetView(view);
+        TextView tvDetails;
+        Button btnGetDirection;
+        ImageView ivMap;
+        tvDetails = (TextView) view.findViewById(R.id.text_view_details);
+        btnGetDirection = (Button) view.findViewById(R.id.button_join_chat);
+        ivMap = (ImageView) view.findViewById(R.id.image_view_map);
+
+        ArrayList<Medicine> medicineArrayList = MedicineData.getMedicineArrayList1();
+        Medicine medicine = medicineArrayList.get(0);
+//        Medicine medicine = new Medicine("101", "Medicine A", "https://dummyimage.com/400x400/212121/fff.jpg&text=Medicine+A", "");
+        ivMap.setImageResource(R.drawable.expiry_map);
+        tvDetails.setText(medicine.getName() + " is expiring soon. Please donate it at the Dropbox below.");
+        btnGetDirection.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                double latitude = 3.154045;
+                double longitude = 101.713018;
+                GoogleMapUtil.startGetDirectionActivity(context, latitude, longitude);
+            }
+        });
+        AnimationUtil.animateFadeOut(fab, 100, 300);
+        AnimationUtil.animateScaleXY(ivMap, 300, 800);
+        AnimationUtil.animateScaleXY(btnGetDirection, 600, 800);
+
+        bottomSheetLayout.addOnSheetDismissedListener(new OnSheetDismissedListener() {
+            @Override
+            public void onDismissed(BottomSheetLayout bottomSheetLayout) {
+                AnimationUtil.animateFadeIn(fab, 100, 300);
+            }
+        });
+
     }
 }

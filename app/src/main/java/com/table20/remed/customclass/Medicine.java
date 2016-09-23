@@ -1,5 +1,10 @@
 package com.table20.remed.customclass;
 
+import com.google.firebase.database.Exclude;
+import com.table20.remed.util.DateUtil;
+
+import java.util.Date;
+
 /**
  * Created by noelchew on 22/09/2016.
  */
@@ -9,15 +14,17 @@ public class Medicine {
     private String id;
     private String name;
     private String imageUrl;
-    private String expiryDate;
+    private long purchaseDate;
+    private long expiryDate;
 
     public Medicine() {
     }
 
-    public Medicine(String id, String name, String imageUrl, String expiryDate) {
+    public Medicine(String id, String name, String imageUrl, long purchaseDate, long expiryDate) {
         this.id = id;
         this.name = name;
         this.imageUrl = imageUrl;
+        this.purchaseDate = purchaseDate;
         this.expiryDate = expiryDate;
     }
 
@@ -45,11 +52,29 @@ public class Medicine {
         this.imageUrl = imageUrl;
     }
 
-    public String getExpiryDate() {
+    public long getPurchaseDate() {
+        return purchaseDate;
+    }
+
+    public void setPurchaseDate(long purchaseDate) {
+        this.purchaseDate = purchaseDate;
+    }
+
+    @Exclude
+    public String getPurchaseDateInString() {
+        return DateUtil.dateToString(new Date(purchaseDate), "MMM yyyy");
+    }
+
+    public long getExpiryDate() {
         return expiryDate;
     }
 
-    public void setExpiryDate(String expiryDate) {
+    public void setExpiryDate(long expiryDate) {
         this.expiryDate = expiryDate;
+    }
+
+    @Exclude
+    public String getExpiryDateInString() {
+        return DateUtil.dateToString(new Date(expiryDate), "MMM yyyy");
     }
 }

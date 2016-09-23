@@ -225,7 +225,8 @@ public class MainActivity extends AppCompatActivity {
             return true;
         } else if (id == R.id.test) {
 //            Medicine medicine = new Medicine("m101", "Panadol", getString(R.string.med0_image_url), new Date().getTime(), DateUtil.getDateFromString("30/10/2016", "dd/MM/yyyy").getTime());
-            Medicine medicine = new Medicine("m102", "Arcoxia", getString(R.string.med2_image_url), new Date().getTime(), DateUtil.getDateFromString("30/11/2017", "dd/MM/yyyy").getTime());
+//            Medicine medicine = new Medicine("m102", "Arcoxia", getString(R.string.med2_image_url), new Date().getTime(), DateUtil.getDateFromString("30/11/2017", "dd/MM/yyyy").getTime());
+            Medicine medicine = new Medicine("m103", "Advil", getString(R.string.med1_image_url), new Date().getTime(), DateUtil.getDateFromString("30/12/2018", "dd/MM/yyyy").getTime());
             ScanAction scanAction = new ScanAction(medicine);
 //            Dropbox dropbox = new Dropbox("d201", USER_LATITUDE, USER_LONGITUDE, true);
 //            ScanAction scanAction = new ScanAction(dropbox);

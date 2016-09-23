@@ -5,12 +5,20 @@
     android:background="@drawable/bottomsheet_background"
     android:padding="8dp">
 
+    <ImageView
+        android:id="@+id/image_view_exclamation"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_margin="2dp"
+        android:src="@drawable/exclamation" />
+
     <TextView
         android:id="@+id/text_view_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="2dp"
-        android:text="Expiry Warning"
+        android:layout_margin="10dp"
+        android:layout_toRightOf="@+id/image_view_exclamation"
+        android:text="Expiration Notice"
         android:textColor="@android:color/black"
         android:textSize="26sp" />
 
@@ -18,11 +26,13 @@
         android:id="@+id/text_view_details"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/text_view_label"
-        android:layout_margin="2dp"
+        android:layout_below="@+id/image_view_exclamation"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="12dp"
         android:text=""
         android:textColor="@android:color/black"
-        android:textSize="18sp" />
+        android:textSize="16dp" />
 
     <ImageView
         android:id="@+id/image_view_map"

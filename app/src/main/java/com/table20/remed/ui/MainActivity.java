@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -21,6 +22,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.flipboard.bottomsheet.BottomSheetLayout;
@@ -35,16 +37,21 @@ import com.greysonparrelli.permiso.Permiso;
 import com.noelchew.permisowrapper.PermisoWrapper;
 import com.table20.remed.R;
 import com.table20.remed.adapter.MedicineAdapter;
+import com.table20.remed.api.JupyterDataApi;
 import com.table20.remed.customclass.Dropbox;
 import com.table20.remed.customclass.Medicine;
 import com.table20.remed.customclass.ScanAction;
 import com.table20.remed.customclass.User;
 import com.table20.remed.data.MedicineData;
+import com.table20.remed.listener.OnCallApiGeneralListener;
+import com.table20.remed.listener.OnItemClickListener;
 import com.table20.remed.user.HackathonUserModule;
 import com.table20.remed.util.AnimationUtil;
+import com.table20.remed.util.DateUtil;
 import com.table20.remed.util.GoogleMapUtil;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -124,7 +131,7 @@ public class MainActivity extends AppCompatActivity {
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         // specify an adapter (see also next example)
-        mAdapter = new MedicineAdapter(medicineArrayList, context);
+        mAdapter = new MedicineAdapter(medicineArrayList, context, medicineOnItemClickListener);
         mRecyclerView.setAdapter(mAdapter);
 
         getData();
@@ -148,7 +155,7 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     medicineArrayList = user.getMedicineArrayList();
                 }
-                mAdapter = new MedicineAdapter(medicineArrayList, context);
+                mAdapter = new MedicineAdapter(medicineArrayList, context, medicineOnItemClickListener);
                 mRecyclerView.setAdapter(mAdapter);
                 hideProgressDialog();
             }
@@ -192,8 +199,8 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
             finish();
         } else if (id == R.id.reset_data) {
-            final ArrayList<Medicine> medicineArrayList1 = MedicineData.getMedicineArrayList1();
-            final ArrayList<Medicine> medicineArrayList2 = MedicineData.getMedicineArrayList2();
+            final ArrayList<Medicine> medicineArrayList1 = MedicineData.getMedicineArrayList1(context);
+            final ArrayList<Medicine> medicineArrayList2 = MedicineData.getMedicineArrayList2(context);
             final User user = new User(HackathonUserModule.getUserId(), USER_LATITUDE, USER_LONGITUDE, USER_EMAIL, "n/a");
             FirebaseDatabase.getInstance().getReference("user").child(user.getId()).setValue(user, new DatabaseReference.CompletionListener() {
                 @Override
@@ -217,12 +224,16 @@ public class MainActivity extends AppCompatActivity {
             });
             return true;
         } else if (id == R.id.test) {
-//            Medicine medicine = new Medicine("101", "Medicine A", "https://dummyimage.com/400x400/212121/fff.jpg&text=Medicine+A", "JAN 2020");
-//            ScanAction scanAction = new ScanAction(medicine);
-            Dropbox dropbox = new Dropbox("d201", USER_LATITUDE, USER_LONGITUDE, true);
-            ScanAction scanAction = new ScanAction(dropbox);
+            Medicine medicine = new Medicine("m101", "Panadol", getString(R.string.med0_image_url), new Date().getTime(), DateUtil.getDateFromString("30/10/2016", "dd/MM/yyyy").getTime());
+            ScanAction scanAction = new ScanAction(medicine);
+//            Dropbox dropbox = new Dropbox("d201", USER_LATITUDE, USER_LONGITUDE, true);
+//            ScanAction scanAction = new ScanAction(dropbox);
             String json = new Gson().toJson(scanAction, ScanAction.class);
             Log.d(TAG, "scanAction json: " + json);
+            // scanAction json: {"medicine":{"expiryDate":1598716800000,"id":"m101","imageUrl":"https://firebasestorage.googleapis.com/v0/b/remed-53f87.appspot.com/o/medicine%2Fmed0.png?alt\u003dmedia\u0026token\u003dcaa8410f-ed4d-479b-8d83-69468b7a3a1b","name":"Panadol","purchaseDate":1474599808618},"scanType":0}
+
+// scanAction json: {"medicine":{"expiryDate":1598716800000,"id":"m101","imageUrl":"https://dummyimage.com/400x400/212121/fff.jpg\u0026text\u003dMedicine+A","name":"Medicine A","purchaseDate":1474594773021},"scanType":0}
+
             // {"expiryDate":"JAN 2020","id":"101","imageUrl":"https://dummyimage.com/400x400/212121/fff.jpg\u0026text\u003dMedicine+A","name":"Medicine A"}
 // scanAction json: {"medicine":{"expiryDate":"JAN 2020","id":"m101","imageUrl":"https://dummyimage.com/400x400/212121/fff.jpg\u0026text\u003dMedicine+A","name":"Medicine A"},"scanType":0}
             // scanAction json: {"dropbox":{"activeState":true,"id":"d201","latitude":3.154205,"longitude":101.713112},"scanType":1}
@@ -256,7 +267,7 @@ public class MainActivity extends AppCompatActivity {
                 if (!TextUtils.isEmpty(text)) {
                     ScanAction scanAction = new Gson().fromJson(text, ScanAction.class);
                     if (scanAction.isMedicine()) {
-                        popupAddMedicine(scanAction.getMedicine());
+                        popupAddMedicine(true, scanAction.getMedicine());
                     } else {
 
                         AlertDialog.Builder builder = new AlertDialog.Builder(context);
@@ -269,6 +280,7 @@ public class MainActivity extends AppCompatActivity {
                         FirebaseDatabase.getInstance().getReference("dropbox").child(scanAction.getDropbox().getId()).child("medicines").child(scanAction.getMedicine().getId()).setValue(scanAction.getMedicine());
                         // remove from user list
                         FirebaseDatabase.getInstance().getReference("user").child(userId).child("medicines").child(scanAction.getMedicine().getId()).removeValue();
+
                     }
                 }
             }
@@ -297,7 +309,14 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void popupAddMedicine(final Medicine medicine) {
+    private OnItemClickListener medicineOnItemClickListener = new OnItemClickListener() {
+        @Override
+        public void onClick(Medicine medicine) {
+            popupAddMedicine(false, medicine);
+        }
+    };
+
+    private void popupAddMedicine(final boolean isAdd, final Medicine medicine) {
         View view = LayoutInflater.from(context).inflate(R.layout.layout_bottomsheet_add_medicine, bottomSheetLayout, false);
         bottomSheetLayout.showWithSheetView(view);
         TextView tvName, tvDetails;
@@ -310,14 +329,56 @@ public class MainActivity extends AppCompatActivity {
         imageView = (ImageView) view.findViewById(R.id.image_view_medicine);
 
         Glide.with(MainActivity.this).load(medicine.getImageUrl()).into(imageView);
+
         tvName.setText(medicine.getName());
-        tvDetails.setText("Expiry Date: " + medicine.getExpiryDate());
+        if (medicine.getExpiryDate() <= new Date().getTime()) {
+            // expired
+            tvName.setTextColor(ContextCompat.getColor(context, android.R.color.holo_red_dark));
+            tvName.setText(medicine.getName() + " (Expired)");
+        } else {
+            tvName.setTextColor(ContextCompat.getColor(context, android.R.color.primary_text_light));
+        }
+
+
+        tvDetails.setText(medicine.getExpiryDateInString());
+
+        if (isAdd) {
+            btnAdd.setText("Add");
+        } else {
+            btnAdd.setText("Remove");
+        }
         btnAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // add into user list
+
+                if (isAdd) {
+                    // add into user list
 //                        String key = FirebaseDatabase.getInstance().getReference("user").child(userId).child("medicines").push().getKey();
-                FirebaseDatabase.getInstance().getReference("user").child(userId).child("medicines").child(medicine.getId()).setValue(medicine);
+                    FirebaseDatabase.getInstance().getReference("user").child(userId).child("medicines").child(medicine.getId()).setValue(medicine);
+
+                    // add point into Jupyter data set
+                    JupyterDataApi.addDataPoint(new OnCallApiGeneralListener() {
+                        @Override
+                        public void onCallSuccess() {
+
+                        }
+
+                        @Override
+                        public void onCallFailed(final String error) {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(context, error, Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                        }
+                    });
+
+
+                } else {
+                    // remove from user list
+                    FirebaseDatabase.getInstance().getReference("user").child(userId).child("medicines").child(medicine.getId()).removeValue();
+                }
                 bottomSheetLayout.dismissSheet();
             }
         });
@@ -352,11 +413,11 @@ public class MainActivity extends AppCompatActivity {
         btnGetDirection = (Button) view.findViewById(R.id.button_join_chat);
         ivMap = (ImageView) view.findViewById(R.id.image_view_map);
 
-        ArrayList<Medicine> medicineArrayList = MedicineData.getMedicineArrayList1();
+        ArrayList<Medicine> medicineArrayList = MedicineData.getMedicineArrayList1(context);
         Medicine medicine = medicineArrayList.get(0);
 //        Medicine medicine = new Medicine("101", "Medicine A", "https://dummyimage.com/400x400/212121/fff.jpg&text=Medicine+A", "");
         ivMap.setImageResource(R.drawable.expiry_map);
-        tvDetails.setText(medicine.getName() + " is expiring soon. Please donate it at the Dropbox below.");
+        tvDetails.setText(medicine.getName() + " is expiring soon.\nWe found a Dropbox nearby!");
         btnGetDirection.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

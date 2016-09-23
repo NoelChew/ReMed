@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">ReMed</string>
     <string name="action_settings">Settings</string>
+
+    <string name="med0_image_url">https://firebasestorage.googleapis.com/v0/b/remed-53f87.appspot.com/o/medicine%2Fmed0.png?alt=media&amp;token=caa8410f-ed4d-479b-8d83-69468b7a3a1b</string>
+    <string name="med1_image_url">https://firebasestorage.googleapis.com/v0/b/remed-53f87.appspot.com/o/medicine%2Fmed1.png?alt=media&amp;token=0d68281b-0cd5-4584-a721-6e933856861d</string>
 </resources>

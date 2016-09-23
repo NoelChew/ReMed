@@ -77,7 +77,7 @@ public class DropboxActivity extends AppCompatActivity {
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         // specify an adapter (see also next example)
-        mAdapter = new MedicineAdapter(medicineArrayList, context);
+        mAdapter = new MedicineAdapter(medicineArrayList, context, null);
         mRecyclerView.setAdapter(mAdapter);
 
         getData();
@@ -100,7 +100,7 @@ public class DropboxActivity extends AppCompatActivity {
                 } else {
                     medicineArrayList = dropbox.getMedicineArrayList();
                 }
-                mAdapter = new MedicineAdapter(medicineArrayList, context);
+                mAdapter = new MedicineAdapter(medicineArrayList, context, null);
                 mRecyclerView.setAdapter(mAdapter);
                 hideProgressDialog();
             }

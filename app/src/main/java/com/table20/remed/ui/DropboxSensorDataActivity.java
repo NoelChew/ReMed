@@ -223,8 +223,8 @@ public class DropboxSensorDataActivity extends AppCompatActivity {
                         set1.setDrawCircleHole(false);
 //                    set1.setValueTextSize(9f);
                         set1.disableDashedLine();
-//                set1.setDrawFilled(true);
-//                set1.setMode(LineDataSet.Mode.CUBIC_BEZIER);
+//                        set1.setDrawFilled(true);
+                        set1.setMode(LineDataSet.Mode.CUBIC_BEZIER);
                         set1.setHighlightEnabled(false);
                         set1.setDrawValues(false);
 
@@ -344,7 +344,7 @@ public class DropboxSensorDataActivity extends AppCompatActivity {
 //                    set1.setValueTextSize(9f);
                         set1.disableDashedLine();
 //                set1.setDrawFilled(true);
-//                set1.setMode(LineDataSet.Mode.CUBIC_BEZIER);
+                        set1.setMode(LineDataSet.Mode.CUBIC_BEZIER);
                         set1.setHighlightEnabled(false);
                         set1.setDrawValues(false);
 
@@ -464,7 +464,7 @@ public class DropboxSensorDataActivity extends AppCompatActivity {
 //                    set1.setValueTextSize(9f);
                         set1.disableDashedLine();
 //                set1.setDrawFilled(true);
-//                set1.setMode(LineDataSet.Mode.CUBIC_BEZIER);
+                        set1.setMode(LineDataSet.Mode.CUBIC_BEZIER);
                         set1.setHighlightEnabled(false);
                         set1.setDrawValues(false);
 

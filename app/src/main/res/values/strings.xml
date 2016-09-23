@@ -4,4 +4,5 @@
 
     <string name="med0_image_url">https://firebasestorage.googleapis.com/v0/b/remed-53f87.appspot.com/o/medicine%2Fmed0.png?alt=media&amp;token=caa8410f-ed4d-479b-8d83-69468b7a3a1b</string>
     <string name="med1_image_url">https://firebasestorage.googleapis.com/v0/b/remed-53f87.appspot.com/o/medicine%2Fmed1.png?alt=media&amp;token=0d68281b-0cd5-4584-a721-6e933856861d</string>
+    <string name="med2_image_url">https://firebasestorage.googleapis.com/v0/b/remed-53f87.appspot.com/o/medicine%2Fmed2.png?alt=media&amp;token=b2f373fb-35a3-4147-a708-5699bec46a04</string>
 </resources>

@@ -56,8 +56,15 @@ public class SensorDataApi {
     public static void getSensorData(SensorType sensorType, final OnGetSensorDataListener listener) {
         OkHttpClient client = new OkHttpClient();
 
+//        JSONObject jsonObject = new JSONObject();
+//        try {
+//            jsonObject.put("limit", 5);
+//        } catch (JSONException e) {
+//            e.printStackTrace();
+//        }
+
         final Request request = new Request.Builder()
-                .url("http://api-m2x.att.com/v2/devices/" + DEVICE_ID + "/streams/" + sensorType.getName() + "/values?pretty=true'")
+                .url("http://api-m2x.att.com/v2/devices/" + DEVICE_ID + "/streams/" + sensorType.getName() + "/values?pretty=true&limit=5")
                 .addHeader("Content-Type", "application/json")
                 .addHeader("X-M2X-KEY", API_KEY)
                 .build();

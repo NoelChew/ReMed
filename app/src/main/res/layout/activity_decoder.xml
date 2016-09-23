@@ -6,12 +6,16 @@
     <com.dlazaro66.qrcodereaderview.QRCodeReaderView
         android:id="@+id/qrdecoderview"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 
-    <View
+    <ImageView
         android:layout_width="300dp"
         android:layout_height="300dp"
+        android:scaleType="centerInside"
         android:layout_centerInParent="true"
-        android:background="@drawable/viewfinder" />
+        android:src="@drawable/viewfinder" />
 
 </RelativeLayout>
